@@ -1,44 +1,46 @@
-### welcome_assignment_answers
-### Input - All eight questions given in the assignment.
-### Output - The right answer for the specific question.
+#import socket module
+from socket import *
+import sys # In order to terminate the program
+serverSocket = socket(AF_INET, SOCK_STREAM)
+#Prepare a sever socket
+#Fill in start
+serverPort = 13331
+serverSocket.bind(('',serverPort))
+serverSocket.listen(1)
+#Fill in end
+while True:
+    #Establish the connection
+    print('Ready to serve...')
+    connectionSocket, addr = serverSocket.accept()
+    try:
+        message = connectionSocket.recv(1024).decode()
+        filename = message.split()[1]
+        f = open(filename[1:])
+        outputdata = f.read()
+        #Send one HTTP header line into socket
+        #Fill in start
+        headerline = "HTTP/1.1 200 OK\r\n"
+        headerline += "Connection: close\r\nContent-Length: "
+        headerline += str(len(outputdata))
+        headerline += "\r\nContent-Type: text/html\r\n\r\n"
+        print(headerline)
+        connectionSocket.send(headerline.encode())
+        #Fill in end
+        #Send the content of the requested file to the client
+        for i in range(0, len(outputdata)):
+            connectionSocket.send(outputdata[i].encode())
+        connectionSocket.send("\r\n".encode())
 
-def welcome_assignment_answers(question):
-    #Students do not have to follow the skeleton for this assignment.
-    #Another way to implement is using a "case" statements similar to C.
-    if question == "Are encoding and encryption the same? - Yes/No":
-        answer = "No"
-    elif question == "Is it possible to decrypt a message without a key? - Yes/No":
-        answer = "No"
-    elif question == "In Slack, what is the secret passphrase posted in the #lab-python-getting-started channel posted by a TA?":
-        answer = "mtls"
-    elif question == "Is it possible to decode a message without a key? - Yes/No":
-        answer = "Yes"
-    elif question == "Is a hashed message supposed to be un-hashed? - Yes/No":
-        answer = "No"
-    elif question == "What is the MD5 hashing value to the following message: 'NYU Computer Networking' - Use MD5 hash generator and use the answer in your code":
-        answer = "42b76fe51778764973077a5a94056724"
-    elif question == "Is MD5 a secured hashing algorithm? - Yes/No":
-        answer = "No"
-    elif question == "What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number":
-        answer = 5
-    elif question == "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number":
-        answer = 4
-    return(answer)
-# Complete all the questions.
-
-
-if __name__ == "__main__":
-    #use this space to debug and verify that the program works
-    debug_question = "Are encoding and encryption the same? - Yes/No"
-    print(welcome_assignment_answers(debug_question))
-
-###Questions:
-###"In Slack, what is the secret passphrase posted in the #lab-python-getting-started channel posted by a TA?"
-###"Are encoding and encryption the same? - Yes/No"
-###"Is it possible to decrypt a message without a key? - Yes/No"
-###"Is it possible to decode a message without a key? - Yes/No"
-###"Is a hashed message supposed to be un-hashed? - Yes/No"
-###"What is the MD5 hashing value to the following message: 'NYU Computer Networking' - Use MD5 hash generator and use the answer in your code"
-###"Is MD5 a secured hashing algorithm? - Yes/No"
-###"What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number"
-###"What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number"
+        connectionSocket.close()
+    except IOError:
+        #Send response message for file not found
+        #Fill in start
+        errinfo = 'HTTP/1.1 404 Not Found\r\n'
+        connectionSocket.send(errinfo.encode())
+        #Fill in end
+        #Close client socket
+        #Fill in start
+        connectionSocket.close()
+        #Fill in end
+serverSocket.close()
+sys.exit()#Terminate the program after sending the corresponding data
